@@ -1,0 +1,22 @@
+log: debug
+train_mode: one_layer
+type_model: simpleGCN
+dropedge: 0
+num_layers: [5] # [5, 60, 120]
+type_norm: "None"
+random_seeds: [100] # [100,200,300,400,500]
+dataset: [Cora] # ,Citeseer,Pubmed,CoauthorCS
+cuda: True # False. True
+cuda_num: 0
+dropout: 0.6
+lr: 0.005
+weight_decay: !!float 5e-4
+dim_hidden: 16
+miss_rate: 0
+epochs: 1000
+grad_clip: 0.0
+num_groups: 1
+#simpleGCN_mode: "ACM"
+simpleGCN_mode: None
+
+wm_fix: [True] # True,

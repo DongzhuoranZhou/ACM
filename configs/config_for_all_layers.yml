@@ -1,0 +1,46 @@
+# save model
+OUT_PATH_str: DGN/results/12Jan2023/AllModels/OurApproach_Sota
+log: debug
+
+# save log
+log_path: DGN/logs/12Jan2023/AllModels/OurApproach_Sota
+comment: GAT_missrate1_CoauthorCS_wm_fix_false_first_layer821_minus_mean # x_tmp_with_batch_norm_without_minus_mean_on_x, None
+train_mode: all_layers # all_layers, one_layer
+type_model: GAT
+#num_layers: 2
+start_num_layers: 1
+end_num_layers: 30
+type_norm:   ['None'] # ['None', 'batch', 'pair', "group"]
+random_seeds: [100] # [100,200,300,400,500]
+dataset: [Cora] # Pubmed, Citeseer,
+cuda: True
+cuda_num: 0
+dropout: 0.6
+lr:  [0.005, 0.01, 0.02] # 0.005
+weight_decay: !!float 5e-4
+dim_hidden: 16
+miss_rate: [1] # [0, 1]
+epochs: 1000
+grad_clip: 0.0
+num_groups: 10
+residual: 0
+
+type_sphere_norm: ["sphere_with_anchor"] # None, "sphere", "sphere_production_space", "sphere_with_anchor"
+type_layer:  GATConv_for_sphere_norm_with_anchor # None, GCNConv_for_sphere_norm, GCNConv_for_sphere_norm_with_anchor, GATConv_for_sphere_norm_with_anchor
+add_anchor: False # True, False
+
+simpleGCN_mode: sphere
+
+#type_sphere_norm: "None"
+#type_layer: None
+#add_anchor: [False]
+
+bias: False
+last_layer_mode: None
+bn_layer: useless
+
+wm_fix: [True] # True,
+b_constant: 0.9 # [0.3,0.5,0.7,0.9] # [0.3,0.5,0.7,0.9]
+
+add_bn_layer_after: [0]
+

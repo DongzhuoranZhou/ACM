@@ -1,0 +1,21 @@
+log: debug
+type_model: GCN
+num_layers: [ 3 ] # [5, 60, 120]
+type_norm: "None"
+random_seeds: [ 200 ] # [100,200,300,400,500]
+dataset: [Cora] # Cora,Citeseer,Pubmed,CoauthorCS
+dropedge: 0
+cuda: True # False. True
+cuda_num: 0
+dropout: 0.6
+lr: 0.005
+weight_decay: !!float 5e-4
+dim_hidden: 16
+miss_rate: [0]
+epochs: 1000
+grad_clip: 0.0
+
+#type_layer: None
+type_layer: GCNConv_ACM # GCNConv_for_sphere_norm_with_anchor, GATConv_for_sphere_norm_with_anchor
+
+wm_fix: [False] # True,
