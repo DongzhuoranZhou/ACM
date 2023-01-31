@@ -82,7 +82,7 @@ class GATConv_ACM(GATConv):
             out = out + self.bias
 
 
-        if layer_index == num_layers - 1:  # output layer no push back, only push forward
+        if layer_index == num_layers - 1:
             out = out
         else:
             if wm_fix:

@@ -95,6 +95,12 @@ class BaseOptions():
         parser.add_argument('--skip_weight', type=float, default=0.005) # citeseer 0.001
         parser.add_argument('--loss_weight', type=float, default=0.)
 
+
+        ######
+        parser.add_argument('--type_layer', type=str, default="None", help='{GCNConv_ACM, GATConv_ACM, simpleGCN_ACM}')
+        parser.add_argument("--wm_fix", type=bool, default=False)
+        parser.add_argument('--dropedge', type=float, default=0)
+
         args = parser.parse_args()
         args = self.reset_model_parameter(args)
         return args
@@ -129,30 +135,30 @@ class BaseOptions():
         return args
 
 
-def reset_model_parameter(args):
-    if args.dataset == 'Cora':
-        args.num_feats = 1433
-        args.num_classes = 7
-        args.dropout = 0.6
-        # args.lr = 0.005
-    elif args.dataset == 'Citeseer':
-        args.num_feats = 3703
-        args.num_classes = 6
-        args.dropout = 0.6
-        args.weight_decay = 5e-5
-        args.lr = 0.005
-    elif args.dataset == 'Pubmed':
-        args.num_feats = 500
-        args.num_classes = 3
-        args.dropout = 0.6
-        args.weight_decay = 1e-3
-        args.lr = 0.01
-    elif args.dataset == 'CoauthorCS':
-        args.num_feats = 6805
-        args.num_classes = 15
-        args.dropout = 0.6
-        args.weight_decay = 5e-5
-        args.lr = 0.005
-    else:
-        raise Exception(f'Please include the num_feats, num_classes of {args.dataset} first')
-    return args
+# def reset_model_parameter(args):
+#     if args.dataset == 'Cora':
+#         args.num_feats = 1433
+#         args.num_classes = 7
+#         args.dropout = 0.6
+#         # args.lr = 0.005
+#     elif args.dataset == 'Citeseer':
+#         args.num_feats = 3703
+#         args.num_classes = 6
+#         args.dropout = 0.6
+#         args.weight_decay = 5e-5
+#         args.lr = 0.005
+#     elif args.dataset == 'Pubmed':
+#         args.num_feats = 500
+#         args.num_classes = 3
+#         args.dropout = 0.6
+#         args.weight_decay = 1e-3
+#         args.lr = 0.01
+#     elif args.dataset == 'CoauthorCS':
+#         args.num_feats = 6805
+#         args.num_classes = 15
+#         args.dropout = 0.6
+#         args.weight_decay = 5e-5
+#         args.lr = 0.005
+#     else:
+#         raise Exception(f'Please include the num_feats, num_classes of {args.dataset} first')
+#     return args

@@ -4,12 +4,8 @@ import torch
 import os
 import numpy as np
 import random
-import yaml
-import argparse
 import logging
-from utils import hyperparameters_combination
-from tqdm import tqdm
-from options.base_options import reset_model_parameter
+
 
 def set_seed(args):
     torch.backends.cudnn.deterministic = True
@@ -25,87 +21,36 @@ def set_seed(args):
     random.seed(args.random_seed)
 
 
-seeds = [100, 200, 300, 400, 500]  # + [123, 50, 150, 250, 350, 450]
-seeds = [100]
-# layers_GCN = list(range(1, 10, 1)) + list(range(10, 31, 5))
-layers_GCN = [2, 15, 30]
-layers_GCN = [2, 15, 30]
-# layers_SGCN = [1, 5] + list(range(10, 121, 10))
+seeds = [100, 200, 300, 400, 500]
+layers_GCN = [2, 15, 30, 45, 60]
 layers_SGCN = [5, 60, 120]
 
 
 def main(args):
-    if args.type_model in ['GCN', 'GAT', 'GCNII']:
+    acc_test_layers = []
+    if args.type_model in ['GCN', 'GAT']:
         layers = layers_GCN
     else:
         layers = layers_SGCN
-
-    acc_test_layers = []
-    MI_XiX_layers = []
-    dis_ratio_layers = []
+    if args.type_norm == 'group':
+        args = reset_weight(args)
     for layer in layers:
         args.num_layers = layer
-        if args.type_norm == 'group':
-            args = reset_weight(args)
         acc_test_seeds = []
-        MI_XiX_seeds = []
-        dis_ratio_seeds = []
         for seed in seeds:
             args.random_seed = seed
             set_seed(args)
+            logging.info("-" * 50)
             trnr = trainer_with_tensorboard(args)
-            acc_test, MI_XiX, dis_ratio = trnr.train_compute_MI()
+            acc_test, acc_valid, loss_val, loss_test = trnr.train_compute_MI()
             acc_test_seeds.append(acc_test)
-            MI_XiX_seeds.append(MI_XiX)
-            dis_ratio_seeds.append(dis_ratio)
         avg_acc_test = np.mean(acc_test_seeds)
-        avg_MI_XiX = np.mean(MI_XiX_seeds)
-        avg_dis_ratio = np.mean(dis_ratio_seeds)
-
         acc_test_layers.append(avg_acc_test)
-        MI_XiX_layers.append(avg_MI_XiX)
-        dis_ratio_layers.append(avg_dis_ratio)
-
-    print(f'experiment results of {args.type_norm} applied in {args.type_model} on dataset {args.dataset}')
-    print('number of layers: ', layers)
+    print(
+        f'experiment results of {args.type_layer} applied in {args.type_model} with layers {seeds} on dataset {args.dataset}')
     print('test accuracies: ', acc_test_layers)
-    print('instance information gain: ', MI_XiX_layers)
-    print('group distance ratio: ', dis_ratio_layers)
-
-
-def train_single_layer_model_with_multiple_arg(yaml_path):
-    list_new_complete_config = hyperparameters_combination(yaml_path=yaml_path)
-    for context in list_new_complete_config:
-        print("context: ", context)
-    for i, context in tqdm(enumerate(list_new_complete_config)):
-        print("context {} : ".format(i), context)
-        train_one_single_model(context)
-
-
-def train_one_single_model(context):
-    args = argparse.Namespace(**context)
-    args = reset_model_parameter(args)
-    args = reset_weight(args)
-    logging.basicConfig(format='%(message)s', level=getattr(logging, args.log.upper()))
-    seeds = args.random_seeds
-    for seed in seeds:
-        args.random_seed = seed
-        set_seed(args)
-        logging.info("-" * 50)
-        trnr = trainer_with_tensorboard(args)
-        acc_test, acc_valid, loss_val, loss_test = trnr.train_compute_MI()
-        print('val_acc: {:.4f}, test_acc:{:.4f}'.format(acc_valid, acc_test))
 
 
 if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default='configs/config_for_one_layer_GAT.yml', help='{config file address}.')
-    args = parser.parse_args()
-
-    with open(str(args.config), "r") as file:
-        context = yaml.load(file, Loader=yaml.FullLoader)
-        args_context = argparse.Namespace(**context)
-
-    single_model_yaml_path = str(args.config)
-    train_single_layer_model_with_multiple_arg(single_model_yaml_path)
+    args = BaseOptions().initialize()
+    main(args)

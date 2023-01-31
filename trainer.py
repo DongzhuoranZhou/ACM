@@ -125,6 +125,8 @@ class trainer_with_tensorboard(object):
         best_acc = 0
         for epoch in range(self.epochs):
             loss_train, acc_train, acc_valid, acc_test, loss_val = self.train_net()
+            print('Epoch: {:02d}, Loss: {:.4f}, val_acc: {:.4f}, test_acc:{:.4f}'.format(epoch, loss_train,
+                                                                                         acc_valid, acc_test))
             if best_acc < acc_valid:
                 best_acc = acc_valid
                 self.model.cpu()
@@ -138,7 +140,7 @@ class trainer_with_tensorboard(object):
 
         # evaluate the saved model
         acc_valid, acc_test, loss_val, loss_test = self.run_testSet_After_Train()
-
+        print('val_acc: {:.4f}, test_acc:{:.4f}'.format(acc_valid, acc_test))
 
         return acc_test, acc_valid, loss_val, loss_test,
 

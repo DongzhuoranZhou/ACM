@@ -17,7 +17,7 @@ class simpleGCN(nn.Module):
         self.num_feats = args.num_feats
         self.num_classes = args.num_classes
         self.dim_hidden = args.dim_hidden
-        self.simpleGCN_mode = args.simpleGCN_mode
+        self.type_layer = args.type_layer
         self.dropout = args.dropout
         self.type_norm = args.type_norm
         self.norm_weight = None
@@ -29,7 +29,7 @@ class simpleGCN(nn.Module):
         self.weight = Parameter(torch.Tensor(self.num_feats, self.num_classes))
         self.wm_fix = args.wm_fix
         glorot(self.weight)
-        if self.simpleGCN_mode == "ACM":
+        if self.type_layer == "simpleGCN_ACM":
             self.w_for_norm = nn.Parameter(torch.FloatTensor(1, self.num_classes))
             stdv_for_norm = 1. / np.sqrt(self.w_for_norm.size(1))
             self.w_for_norm.data.uniform_(-stdv_for_norm, stdv_for_norm)
@@ -55,19 +55,19 @@ class simpleGCN(nn.Module):
         x = x
         x = F.dropout(x, p=self.dropout, training=self.training)
         x = torch.mm(x, self.weight)
-        if self.simpleGCN_mode == "ACM":
+        if self.type_layer == "simpleGCN_ACM":
             self.w_for_norm.data = self.w_for_norm.abs()
             if self.wm_fix:
                 self.w_for_norm.data = torch.ones_like(self.w_for_norm)
 
         for i in range(self.num_layers):
-            if self.simpleGCN_mode == "ACM":
+            if self.type_layer == "simpleGCN_ACM":
                 self.w_for_norm.data = self.w_for_norm.abs()
                 if self.wm_fix:
                     self.w_for_norm.data = torch.ones_like(self.w_for_norm)
             x_j = x.index_select(0, edge_index[0])
             x_conv = scatter(norm * x_j, edge_index[1], 0, x.size(0), reduce=self.aggr)
-            if self.simpleGCN_mode == "ACM":
+            if self.type_layer == "simpleGCN_ACM":
                 self.w_for_norm.data = self.w_for_norm.abs()
                 if self.wm_fix:
                     self.w_for_norm.data = torch.ones_like(self.w_for_norm)
