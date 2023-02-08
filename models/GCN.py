@@ -24,7 +24,7 @@ class GCN(nn.Module):
         self.layers_GCN = nn.ModuleList([])
         self.layers_bn = nn.ModuleList([])
         self.layers_bn_for_hyperplan = nn.ModuleList([])
-
+        self.num_groups = args.num_groups
         self.type_norm = args.type_norm
         self.skip_weight = args.skip_weight
         self.type_layer = args.type_layer
@@ -59,7 +59,7 @@ class GCN(nn.Module):
         for i in range(self.num_layers):
             dim_out = self.layers_GCN[i].out_channels
             self.layers_bn.append(
-                batch_norm(dim_out, self.type_norm, self.skip_weight))
+                batch_norm(dim_out, self.type_norm, self.num_groups, self.skip_weight))
         for i in range(self.num_layers - 1):
             dim_out = self.layers_GCN[i].out_channels
             self.layers_bn_for_hyperplan.append(

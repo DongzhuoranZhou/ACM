@@ -38,8 +38,7 @@ class GCNConv_ACM(GCNConv):
             if wm_fix:
                 w_for_norm.data = torch.ones_like(w_for_norm)
             p0, a = p0_generate(w_for_norm, self.out_channels)
-            b_for_hyperplan_mapping_value = 0.9 * a
-            Q_p0_w = push_forward(x, p0, a, b=b_for_hyperplan_mapping_value)
+            Q_p0_w = push_forward(x, p0, a, b=0.9 * a)
             x_tmp = self.lin(Q_p0_w)
             x_tmp = layer_bn_for_hyperplan(x_tmp)
             x_tmp = torch.tanh(x_tmp)
@@ -64,12 +63,10 @@ class GCNConv_ACM(GCNConv):
                              size=None)
         if self.bias is not None:
             out = out + self.bias
-        if layer_index == num_layers - 1:
-            out = out
-        else:
-            if wm_fix:
-                w_for_norm.data = torch.ones_like(w_for_norm)
-            out = RiemannAgg(out, w_for_norm)
+
+        if wm_fix:
+            w_for_norm.data = torch.ones_like(w_for_norm)
+        out = RiemannAgg(out, w_for_norm)
 
         return out
 

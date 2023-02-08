@@ -21,7 +21,7 @@ class GATConv_ACM(GATConv):
             p0, a = p0_generate(w_for_norm, self.out_channels)
 
             x = self.lin_src(x)
-
+            x = layer_bn_for_hyperplan(x)
             x = torch.tanh(x)
             if wm_fix:
                 w_for_norm.data = torch.ones_like(w_for_norm)
@@ -32,12 +32,10 @@ class GATConv_ACM(GATConv):
             if wm_fix:
                 w_for_norm.data = torch.ones_like(w_for_norm)
             p0, a = p0_generate(w_for_norm, self.out_channels)
-            b = 0.9*a
-            Q_p0_w = push_forward(x, p0, a, b=b)
+            Q_p0_w = push_forward(x, p0, a, b=0.9*a)
             x = self.lin_src(Q_p0_w)
-
+            x = layer_bn_for_hyperplan(x)
             x = torch.tanh(x)
-            # TODO PB(\sigma(xw))
             if wm_fix:
                 w_for_norm.data = torch.ones_like(w_for_norm)
             x = push_back(x, p0, w_for_norm)
@@ -82,12 +80,9 @@ class GATConv_ACM(GATConv):
             out = out + self.bias
 
 
-        if layer_index == num_layers - 1:
-            out = out
-        else:
-            if wm_fix:
-                w_for_norm.data = torch.ones_like(w_for_norm)
-            out = RiemannAgg(out, w_for_norm)
+        if wm_fix:
+            w_for_norm.data = torch.ones_like(w_for_norm)
+        out = RiemannAgg(out, w_for_norm)
 
 
         if isinstance(return_attention_weights, bool):
@@ -114,8 +109,8 @@ def push_back(x, p0, w_for_norm):
     f_p0_v_denominator = (x - p0) * w_for_norm @ (x - p0).t()
     f_p0_v_denominator = torch.diag(f_p0_v_denominator).unsqueeze(dim=1)
     f_p0_v = f_p0_v_Numerator / f_p0_v_denominator
-    x_tmp = f_p0_v * (x - p0) + p0
-    return x_tmp
+    _ = f_p0_v * (x - p0) + p0
+    return x
 
 
 def p0_generate(w_for_norm, out_channels):
